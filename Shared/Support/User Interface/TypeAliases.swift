@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Type alias mapping to normalize AppKit and UIKit interfaces to support cross-platform code reuse.
+The type alias mapping to normalize AppKit and UIKit interfaces to support cross-platform code reuse.
 */
 
 #if os(iOS)

@@ -2,13 +2,11 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Utility class to manage DSP parameters which can change value smoothly (be ramped) while rendering, without introducing clicks or other distortion into the signal.
+The utility class to manage DSP parameters that can change value smoothly (be ramped) while rendering without introducing clicks or other distortion into the signal.
 */
 
 #ifndef ParameterRamper_h
 #define ParameterRamper_h
-
-// N.B. This is C++.
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <libkern/OSAtomic.h>
@@ -25,7 +23,7 @@ class ParameterRamper {
     int32_t updateCounter = 0;
 
     void setImmediate(float value) {
-        // only to be called from the render thread or when resources are not allocated.
+        // Only call this from the render thread or when you have unallocated resources.
         _goal = _uiValue = value;
         inverseSlope = 0.0;
         samplesRemaining = 0;
@@ -57,7 +55,7 @@ public:
 
     void dezipperCheck(AUAudioFrameCount rampDuration)
     {
-        // check to see if the UI has changed and if so, start a ramp to dezipper it.
+        // Check to see if the UI has changes and, if so, start a ramp to dezipper it.
         int32_t changeCounterSnapshot = changeCounter;
         if (updateCounter != changeCounterSnapshot) {
             updateCounter = changeCounterSnapshot;
@@ -82,8 +80,9 @@ public:
 
     float get() const {
         /*
-         For long ramps, integrating a sum loses precision and does not reach
-         the goal at the right time. So instead, a line equation is used. y = m * x + b.
+         For long ramps, integrating a sum loses precision and doesn't reach
+         the goal at the right time. So instead, the system uses the y = m * x + b
+         line equation.
          */
         return inverseSlope * float(samplesRemaining) + _goal;
     }
@@ -109,8 +108,8 @@ public:
 
     void stepBy(AUAudioFrameCount n) {
         /*
-         When a parameter does not participate in the current inner loop, you
-         will want to advance it after the end of the loop.
+         When a parameter doesn't participate in the current inner loop, you
+         need to advance it after the end of the loop.
          */
         if (n >= samplesRemaining) {
             samplesRemaining = 0;

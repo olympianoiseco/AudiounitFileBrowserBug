@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-A DSPKernel subclass implementing the realtime signal processing portion of the AUv3FilterDemo audio unit.
+A DSPKernel subclass that implements the real-time signal processing portion of the AUv3FilterDemo audio unit.
 */
 #ifndef FilterDSPKernel_hpp
 #define FilterDSPKernel_hpp
@@ -14,9 +14,9 @@ A DSPKernel subclass implementing the realtime signal processing portion of the 
 static inline float convertBadValuesToZero(float x) {
     /*
      Eliminate denormals, not-a-numbers, and infinities.
-     Denormals will fail the first test (absx > 1e-15), infinities will fail
-     the second test (absx < 1e15), and NaNs will fail both tests. Zero will
-     also fail both tests, but since it will get set to zero that is OK.
+     Denormals fails the first test (absx > 1e-15), infinities fails
+     the second test (absx < 1e15), and NaNs fails both tests. Zero will
+     also fail both tests, but because the system sets it to zero, that's OK.
      */
 
     float absx = fabs(x);
@@ -40,8 +40,8 @@ static inline double squared(double x) {
 
 /*
  FilterDSPKernel
- Performs our filter signal processing.
- As a non-ObjC class, this is safe to use from render thread.
+ Performs the filter signal processing.
+ As a non-ObjC class, this is safe to use from the render thread.
  */
 class FilterDSPKernel : public DSPKernel {
 public:
@@ -61,9 +61,9 @@ public:
 
         void convertBadStateValuesToZero() {
             /*
-             These filters work by feedback. If an infinity or NaN should come
+             These filters work by feedback. If an infinity or NaN needs to come
              into the filter input, the feedback variables can become infinity
-             or NaN which will cause the filter to stop operating. This function
+             or NaN, which causes the filter to stop operating. This function
              clears out any bad numbers in the feedback variables.
              */
             x1 = convertBadValuesToZero(x1);
@@ -82,7 +82,7 @@ public:
 
         void calculateLopassParams(double frequency, double resonance) {
             /*
-             The transcendental function calls here could be replaced with
+             It's possible to replace the transcendental function calls here with
              interpolated table lookups or other approximations.
              */
             
@@ -101,32 +101,32 @@ public:
             a2 = float(c1);
         }
 
-        // Arguments in Hertz.
+        // Arguments in hertz.
         double magnitudeForFrequency( double inFreq) {
-            // Cast to Double.
+            // Cast to double.
             double _b0 = double(b0);
             double _b1 = double(b1);
             double _b2 = double(b2);
             double _a1 = double(a1);
             double _a2 = double(a2);
 
-            // Frequency on unit circle in z-plane.
+            // The frequency on the unit circle in z-plane.
             double zReal      = cos(M_PI * inFreq);
             double zImaginary = sin(M_PI * inFreq);
 
-            // Zeros response.
+            // The zeros response.
             double numeratorReal = (_b0 * (squared(zReal) - squared(zImaginary))) + (_b1 * zReal) + _b2;
             double numeratorImaginary = (2.0 * _b0 * zReal * zImaginary) + (_b1 * zImaginary);
 
             double numeratorMagnitude = sqrt(squared(numeratorReal) + squared(numeratorImaginary));
 
-            // Poles response.
+            // The poles response.
             double denominatorReal = squared(zReal) - squared(zImaginary) + (_a1 * zReal) + _a2;
             double denominatorImaginary = (2.0 * zReal * zImaginary) + (_a1 * zImaginary);
 
             double denominatorMagnitude = sqrt(squared(denominatorReal) + squared(denominatorImaginary));
 
-            // Total response.
+            // The total response.
             double response = numeratorMagnitude / denominatorMagnitude;
 
             return response;
@@ -181,7 +181,7 @@ public:
     AUValue getParameter(AUParameterAddress address) {
         switch (address) {
             case FilterParamCutoff:
-                // Return the goal. It is not thread safe to return the ramping value.
+                // Return the goal. It isn't thread safe to return the ramping value.
                 //return (cutoffRamper.getUIValue() * nyquist);
                 return roundf((cutoffRamper.getUIValue() * nyquist) * 100) / 100;
 
@@ -211,7 +211,7 @@ public:
 
     void process(AUAudioFrameCount frameCount, AUAudioFrameCount bufferOffset) override {
         if (bypassed) {
-            // Pass the samples through
+            // Pass the samples through.
             int channelCount = int(channelStates.size());
             for (int channel = 0; channel < channelCount; ++channel) {
                 if (inBufferListPtr->mBuffers[channel].mData ==  outBufferListPtr->mBuffers[channel].mData) {
@@ -235,7 +235,7 @@ public:
         // For each sample.
         for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) {
             /*
-             The filter coefficients are updated every sample! This is very
+             The filter coefficients update every sample. This is very
              expensive. You probably want to do things differently.
              */
             double cutoff    = double(cutoffRamper.getAndStep());

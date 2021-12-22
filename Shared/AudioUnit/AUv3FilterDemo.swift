@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-An AUAudioUnit subclass implementing a low-pass filter with resonance.
+An AUAudioUnit subclass that implements a low-pass filter with resonance.
 */
 
 import Foundation
@@ -35,23 +35,23 @@ public class AUv3FilterDemo: AUAudioUnit {
                             busses: [kernelAdapter.outputBus])
     }()
 
-    // The owning view controller
+    // The owning view controller.
     weak var viewController: AUv3FilterDemoViewController?
 
-    /// The filter's input busses
+    /// The filter's input busses.
     public override var inputBusses: AUAudioUnitBusArray {
         return inputBusArray
     }
 
-    /// The filter's output busses
+    /// The filter's output busses.
     public override var outputBusses: AUAudioUnitBusArray {
         return outputBusArray
     }
     
-    /// The tree of parameters provided by this AU.
+    /// The tree of parameters that this audio unit provides.
     public override var parameterTree: AUParameterTree? {
         get { return parameters.parameterTree }
-        set { /* The sample doesn't allow this property to be modified. */ }
+        set { /* The sample doesn't allow modification of this property. */ }
     }
 
     public override var factoryPresets: [AUAudioUnitPreset] {
@@ -91,7 +91,7 @@ public class AUv3FilterDemo: AUAudioUnit {
                 // Attempt to restore the archived state for this user preset.
                 do {
                     fullStateForDocument = try presetState(for: preset)
-                    // Set the currentPreset after we've successfully restored the state.
+                    // Set the currentPreset after successfully restoring the state.
                     _currentPreset = preset
                 } catch {
                     print("Unable to restore set for preset \(preset.name)")
@@ -100,7 +100,7 @@ public class AUv3FilterDemo: AUAudioUnit {
         }
     }
     
-    /// Indicates that this Audio Unit supports persisting user presets.
+    /// Indicates that this audio unit supports persisting user presets.
     public override var supportsUserPresets: Bool {
         return true
     }
@@ -108,19 +108,19 @@ public class AUv3FilterDemo: AUAudioUnit {
     public override init(componentDescription: AudioComponentDescription,
                          options: AudioComponentInstantiationOptions = []) throws {
 
-        // Create adapter to communicate to underlying C++ DSP code
+        // Create the adapter to communicate to the underlying C++ DSP code.
         kernelAdapter = FilterDSPKernelAdapter()
         
-        // Create parameters object to control cutoff frequency and resonance
+        // Create the parameters object to control the cutoff frequency and resonance.
         parameters = AUv3FilterDemoParameters(kernelAdapter: kernelAdapter)
 
-        // Init super class
+        // Create the super class.
         try super.init(componentDescription: componentDescription, options: options)
 
-        // Log component description values
+        // Log the component description values.
         log(componentDescription)
         
-        // Set the default preset
+        // Set the default preset.
         currentPreset = factoryPresets.first
     }
 
@@ -140,7 +140,7 @@ public class AUv3FilterDemo: AUAudioUnit {
         print(message)
     }
 
-    // Gets the magnitudes corresponding to the specified frequencies.
+    // Gets the magnitudes that correspond to the specified frequencies.
     func magnitudes(forFrequencies frequencies: [Double]) -> [Double] {
         return kernelAdapter.magnitudes(forFrequencies: frequencies as [NSNumber]).map { $0.doubleValue }
     }
@@ -173,8 +173,8 @@ public class AUv3FilterDemo: AUAudioUnit {
         return kernelAdapter.internalRenderBlock()
     }
 
-    // Boolean indicating that this AU can process the input audio in-place
-    // in the input buffer, without requiring a separate output buffer.
+    // A Boolean value that indicates whether the audio unit can process the input
+    // audio in-place in the input buffer without requiring a separate output buffer.
     public override var canProcessInPlace: Bool {
         return true
     }

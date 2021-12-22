@@ -1,10 +1,10 @@
 # Creating Custom Audio Effects
-Add custom audio effect processing to apps like Logic Pro X and GarageBand by creating Audio Unit (AU) plug-ins.
+Add custom audio-effect processing to apps like Logic Pro X and GarageBand by creating Audio Unit (AU) plug-ins.
 
 ## Overview
 This sample app shows you how to create a custom audio effect plug-in using the latest Audio Unit standard (AUv3). The AUv3 standard builds on the [App Extensions][1] model, which means you deliver your plug-in as an extension that’s contained in an app distributed through the App Store or your own store.
 
-The sample Audio Unit is a low-pass filter that allows frequencies at or below the cutoff frequency to pass through to the output. It attenuates frequencies above this point. It also lets you change the filter’s resonance, which boosts or attenuates a narrow band of frequencies around the cutoff point. You set these values by moving the draggable point around the plug-in’s user interface as shown in the figure below.
+The sample Audio Unit is a low-pass filter that allows frequencies at or below the cutoff frequency to pass through to the output. It attenuates frequencies above this point. It also lets you change the filter’s resonance, which boosts or attenuates a narrow band of frequencies around the cutoff point. You set these values by moving the draggable point around the plug-in’s user interface, as shown in the figure below.
 
 ![plug-in User Interface][image-1]
 
@@ -41,7 +41,7 @@ private enum AUv3FilterParam: AUParameterAddress {
     case cutoff, resonance
 }
 
-/// Parameter to control the cutoff frequency (12Hz - 20kHz).
+/// The parameter to control the cutoff frequency (12 Hz - 20 kHz).
 var cutoffParam: AUParameter = {
     let parameter =
         AUParameterTree.createParameter(withIdentifier: "cutoff",
@@ -62,7 +62,7 @@ var cutoffParam: AUParameter = {
     return parameter
 }()
 
-/// Parameter to control the cutoff frequency's resonance (+/-20dB).
+/// The parameter to control the cutoff frequency's resonance (+/-20 dB).
 var resonanceParam: AUParameter = {
     let parameter =
         AUParameterTree.createParameter(withIdentifier: "resonance",
@@ -77,19 +77,19 @@ var resonanceParam: AUParameter = {
                                                 .flag_CanRamp],
                                         valueStrings: nil,
                                         dependentParameters: nil)
-    // Set default value
+    // Set the default value.
     parameter.value = 20_000.0
 
     return parameter
 }()
 ```
 
-The cutoff parameter defines a frequency range between 12Hz and 20kHz, and the resonance parameter defines a decibel range between -20dB and 20dB. Each parameter is readable and writeable, and also supports ramping, which means you can modify its value over time.
+The cutoff parameter defines a frequency range between 12 Hz and 20 kHz, and the resonance parameter defines a decibel range between -20 dB and 20 dB. Each parameter is readable and writeable, and also supports ramping, which means you can modify its value over time.
 
 You arrange the parameters into a tree by creating an `AUParameterTree` instance and setting them as the tree’s children.
 
 ``` swift
-// Create the audio unit's tree of parameters
+// Create the audio unit's tree of parameters.
 parameterTree = AUParameterTree.createTree(withChildren: [cutoffParam,
                                                           resonanceParam])
 ```
@@ -97,17 +97,17 @@ parameterTree = AUParameterTree.createTree(withChildren: [cutoffParam,
 Next, you bind handlers to the parameter tree’s readable and writeable values by installing closures for its [implementorValueObserver][7], [implementorValueProvider][8], and [implementorStringFromValueCallback][9] properties. These closures delegate to the filter adapter instance, which in turn communicates with the underlying DSP logic.
 
 ``` swift
-// Closure observing all externally-generated parameter value changes.
+// A closure for observing all externally generated parameter value changes.
 parameterTree.implementorValueObserver = { param, value in
     kernelAdapter.setParameter(param, value: value)
 }
 
-// Closure returning state of requested parameter.
+// A closure for returning state of the requested parameter.
 parameterTree.implementorValueProvider = { param in
     return kernelAdapter.value(for: param)
 }
 
-// Closure returning string representation of requested parameter value.
+// A closure for returning the string representation of the requested parameter value.
 parameterTree.implementorStringFromValueCallback = { param, value in
     switch param.address {
     case AUv3FilterParam.cutoff.rawValue:
@@ -144,13 +144,13 @@ private func connectViewToAU() {
         }
     }
 
-    // Observe value changes made to the cutoff and resonance parameters.
+    // Observe value changes to the cutoff and resonance parameters.
     parameterObserverToken =
         paramTree.token(byAddingParameterObserver: { [weak self] address, value in
             guard let self = self else { return }
 
-            // This closure is being called by an arbitrary queue. Ensure
-            // all UI updates are dispatched back to the main thread.
+            // An arbitrary queue is calling this closure. Ensure
+            // all UI updates dispatch back to the main thread.
             if [cutoff.address, resonance.address].contains(address) {
                 DispatchQueue.main.async {
                     self.updateUI()
@@ -158,10 +158,10 @@ private func connectViewToAU() {
             }
         })
 
-    // Indicate the view and AU are connected
+    // Indicate the view and the audio unit have a connection.
     needsConnection = false
 
-    // Sync UI with parameter state
+    // Sync the UI with the parameter state.
     updateUI()
 }
 ```
@@ -190,10 +190,10 @@ private let factoryPresetValues:[(cutoff: AUValue, resonance: AUValue)] = [
 ```
 
 ## Support User Presets
-Factory presets provide a useful starting point for further user customization, but users also want the ability save their changes and create their own custom presets. `AUAudioUnit` provides built-in support for user presets. To enable this support in your Audio Unit, override the [supportsUserPresets][10] property to return `true`.
+Factory presets provide a useful starting point for further user customization, but users also want the ability to save their changes and create their own custom presets. `AUAudioUnit` provides built-in support for user presets. To enable this support in your Audio Unit, override the [supportsUserPresets][10] property to return `true`.
 
 ``` swift
-/// Indicates that this Audio Unit supports persisting user presets.
+/// Indicates that this audio unit supports persisting user presets.
 public override var supportsUserPresets: Bool {
     return true
 }
@@ -228,7 +228,7 @@ public override var currentPreset: AUAudioUnitPreset? {
             // Attempt to restore the archived state for this user preset.
             do {
                 fullStateForDocument = try presetState(for: preset)
-                // Set the currentPreset after we've successfully restored the state.
+                // Set the currentPreset after successfully restoring the state.
                 _currentPreset = preset
             } catch {
                 print("Unable to restore set for preset \(preset.name)")
@@ -241,19 +241,19 @@ public override var currentPreset: AUAudioUnitPreset? {
 ## Package Your Plug-In to Run In-Process
 Like all App Extensions, AUv3 plug-ins run _out-of-process_ by default, which means the extension runs in a separate process from the host app, and all communication between the two occurs over interprocess communication (IPC). This model provides increased security and stability for the host app. For example, if an AUv3 plug-in crashes, the host app won’t crash. However, the IPC communication adds a small amount of overhead to each render cycle, which may be unacceptable depending on the needs of a given application. In macOS only, you can package your plug-in to run _in-process_, which eliminates the IPC communication as your Audio Unit runs as part of the host’s process.
 
-Running a plug-in in-process requires an agreement between the host and the Audio Unit. The host requests in-process instantiation by passing the [.loadInProcess][16] option during the plug-in’s creation, and you need to package your Audio Unit as described and shown below.
+Running an in-process plug-in requires an agreement between the host and the Audio Unit. The host requests in-process instantiation by passing the [.loadInProcess][16] option during the plug-in’s creation, and you need to package your Audio Unit as described and shown below.
 
-Your extension’s main binary cannot be dynamically loaded into another app, which means all executable code needs to reside in a separate framework bundle. However, the extension target still needs to contain at least one source file for the extension binary to be created, properly loaded, and linked with the framework bundle. To ensure the extension is created, add some unused placeholder code in your extension target, like that found in `AUv3FilterExtension.swift`.
+Your extension’s main binary can't be dynamically loaded into another app, which means all executable code needs to reside in a separate framework bundle. However, the extension target still needs to contain at least one source file for the extension binary to be created, properly loaded, and linked with the framework bundle. To ensure the extension is created, add some unused placeholder code in your extension target, like that found in `AUv3FilterExtension.swift`.
 
 ``` swift
 import AUv3FilterFramework
 
 func placeholder() {
-    // This placeholder function ensures the extension correctly loads.
+    // This placeholder function ensures the extension loads correctly.
 }
 ```
 
-The macOS sample packages all of the Audio Unit’s code into the `AUv3FilterFramework` target. You indicate that the extension’s code exists in a separate bundle by adding an `AudioComponentBundle` extension attribute to the target’s Info.plist file.
+The macOS sample packages all of the Audio Unit’s code into the `AUv3FilterFramework` target. You indicate that the extension’s code exists in a separate bundle by adding an `AudioComponentBundle` extension attribute to the target’s `Info.plist` file.
 
 ```
 <key>NSExtension</key>
@@ -272,12 +272,12 @@ If you’re using a xib or Storyboard for your user interface, override your vie
 
 ``` swift
 public override init(nibName: NSNib.Name?, bundle: Bundle?) {
-    // Pass a reference to the owning framework bundle
+    // Pass a reference to the owning framework bundle.
     super.init(nibName: nibName, bundle: Bundle(for: type(of: self)))
 }
 ```
 
-Finally, in the extension’s Info.plist file, set the Audio Unit’s factory object, `AUv3FilterDemoViewController`, as the extension’s principal class.
+Finally, in the extension’s `Info.plist` file, set the Audio Unit’s factory object, `AUv3FilterDemoViewController`, as the extension’s principal class.
 
 ```
 <key>NSExtension</key>
@@ -288,7 +288,7 @@ Finally, in the extension’s Info.plist file, set the Audio Unit’s factory ob
 </dict>
 ```
 
-- Note: See [Incorporating Audio Effects and Instruments][18] for a host app you can use to load your plug-in in-process and out-of-process.
+- Note: See [Incorporating Audio Effects and Instruments][18] for a host app you can use to load your plug-in both in-process and out-of-process.
 
 
 

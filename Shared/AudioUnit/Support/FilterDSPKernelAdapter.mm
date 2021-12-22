@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Adapter object providing a Swift-accessible interface to the filter's underlying DSP code.
+The adapter object that provides a Swift-accessible interface to the filter's underlying DSP code.
 */
 
 #import <AVFoundation/AVFoundation.h>
@@ -92,13 +92,12 @@ Adapter object providing a Swift-accessible interface to the filter's underlying
 
 #pragma mark - AUAudioUnit (AUAudioUnitImplementation)
 
-// Subclassers must provide a AUInternalRenderBlock (via a getter) to implement rendering.
+// Subclasses must provide an AUInternalRenderBlock (via a getter) to implement rendering.
 - (AUInternalRenderBlock)internalRenderBlock {
     /*
-     Capture in locals to avoid ObjC member lookups. If "self" is captured in
-     render, we're doing it wrong.
+     Capture in locals to avoid ObjC member lookups. Don't capture "self" in render.
      */
-    // Specify captured objects are mutable.
+    // Specify that captured objects are mutable.
     __block FilterDSPKernel *state = &_kernel;
     __block BufferedInputBus *input = &_inputBus;
 
@@ -124,20 +123,23 @@ Adapter object providing a Swift-accessible interface to the filter's underlying
 
         /*
          Important:
-         If the caller passed non-null output pointers (outputData->mBuffers[x].mData), use those.
+         If the caller passes non-null output pointers (outputData->mBuffers[x].mData),
+         use those.
 
-         If the caller passed null output buffer pointers, process in memory owned by the Audio Unit
-         and modify the (outputData->mBuffers[x].mData) pointers to point to this owned memory.
-         The Audio Unit is responsible for preserving the validity of this memory until the next call to render,
-         or deallocateRenderResources is called.
+         If the caller passed null output buffer pointers, process them in memory the
+         audio unit owns and modify the (outputData->mBuffers[x].mData) pointers to
+         point to this owned memory. The audio unit is responsible for preserving the
+         validity of this memory until the next call to render, or you call
+         deallocateRenderResources.
 
-         If your algorithm cannot process in-place, you will need to preallocate an output buffer
-         and use it here.
+         If your algorithm can't process in-place, you need to preallocate an
+         output buffer and use it here.
 
          See the description of the canProcessInPlace property.
          */
 
-        // If passed null output buffer pointers, process in-place in the input buffer.
+        // If you receive null output buffer pointers, process them in-place in the
+        // input buffer.
         AudioBufferList *outAudioBufferList = outputData;
         if (outAudioBufferList->mBuffers[0].mData == nullptr) {
             for (UInt32 i = 0; i < outAudioBufferList->mNumberBuffers; ++i) {

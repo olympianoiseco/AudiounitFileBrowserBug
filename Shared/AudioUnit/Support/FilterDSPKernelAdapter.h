@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Adapter object providing a Swift-accessible interface to the filter's underlying DSP code.
+The adapter object that provides a Swift-accessible interface to the filter's underlying DSP code.
 */
 
 #import <AudioToolbox/AudioToolbox.h>

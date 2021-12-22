@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-The object managing the filter's cutoff and resonance parameters.
+The object that manages the filter's cutoff and resonance parameters.
 */
 
 import Foundation
@@ -14,7 +14,7 @@ class AUv3FilterDemoParameters {
         case cutoff, resonance
     }
 
-    /// Parameter to control the cutoff frequency (12Hz - 20kHz).
+    /// The parameter to control the cutoff frequency (12 Hz - 20 kHz).
     var cutoffParam: AUParameter = {
         let parameter =
             AUParameterTree.createParameter(withIdentifier: "cutoff",
@@ -35,7 +35,7 @@ class AUv3FilterDemoParameters {
         return parameter
     }()
 
-    /// Parameter to control the cutoff frequency's resonance (+/-20dB).
+    /// The parameter to control the cutoff frequency's resonance (+/-20 dB).
     var resonanceParam: AUParameter = {
         let parameter =
             AUParameterTree.createParameter(withIdentifier: "resonance",
@@ -50,7 +50,7 @@ class AUv3FilterDemoParameters {
                                                     .flag_CanRamp],
                                             valueStrings: nil,
                                             dependentParameters: nil)
-        // Set default value
+        // Set the default value.
         parameter.value = 20_000.0
 
         return parameter
@@ -60,21 +60,21 @@ class AUv3FilterDemoParameters {
 
     init(kernelAdapter: FilterDSPKernelAdapter) {
 
-        // Create the audio unit's tree of parameters
+        // Create the audio unit's tree of parameters.
         parameterTree = AUParameterTree.createTree(withChildren: [cutoffParam,
                                                                   resonanceParam])
 
-        // Closure observing all externally-generated parameter value changes.
+        // A closure for observing all externally generated parameter value changes.
         parameterTree.implementorValueObserver = { param, value in
             kernelAdapter.setParameter(param, value: value)
         }
 
-        // Closure returning state of requested parameter.
+        // A closure for returning state of the requested parameter.
         parameterTree.implementorValueProvider = { param in
             return kernelAdapter.value(for: param)
         }
 
-        // Closure returning string representation of requested parameter value.
+        // A closure for returning the string representation of the requested parameter value.
         parameterTree.implementorStringFromValueCallback = { param, value in
             switch param.address {
             case AUv3FilterParam.cutoff.rawValue:

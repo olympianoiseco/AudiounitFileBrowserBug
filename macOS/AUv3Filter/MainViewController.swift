@@ -79,12 +79,12 @@ class MainViewController: NSViewController {
         audioUnitManager.toggleView()
     }
 
-    /// Cutoff frequency value changed handler
+    /// The cutoff frequency value changes the handler.
     @IBAction func cutoffSliderValueChanged(_ sender: NSSlider) {
         audioUnitManager.cutoffValue = frequencyValueForSliderLocation(sender.floatValue)
     }
 
-    /// Resonance value changed handler
+    /// The resonance value changes the handler.
     @IBAction func resonanceSliderValueChanged(_ sender: NSSlider) {
         audioUnitManager.resonanceValue = sender.floatValue
     }
@@ -116,10 +116,10 @@ extension MainViewController: AUManagerDelegate {
 
     func cutoffValueDidChange(_ value: Float) {
 
-        // Normalize the vaue from 0-1
+        // Normalize the vaue from 0-1.
         var normalizedValue = (value - defaultMinHertz) / (defaultMaxHertz - defaultMinHertz)
 
-        // Map to 2^0 - 2^9 (slider range)
+        // Map to 2^0 - 2^9 (slider range).
         normalizedValue = (normalizedValue * 511.0) + 1
 
         cutoffSlider.floatValue = Float(logValueForNumber(normalizedValue))

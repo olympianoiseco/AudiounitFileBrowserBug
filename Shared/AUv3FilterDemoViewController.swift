@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-View controller for the AUv3FilterDemo audio unit. Manages the interactions between a FilterView and the audio unit's parameters.
+The view controller for the AUv3FilterDemo audio unit that manages the interactions between a FilterView and the audio unit's parameters.
 */
 
 import CoreAudioKit
@@ -39,24 +39,25 @@ public class AUv3FilterDemoViewController: AUViewController {
         }
     }
 
+    // Always support width: 0 height:0, which is the default and largest view.
     public var viewConfigurations: [AUAudioUnitViewConfiguration] {
-        // width: 0 height:0  is always supported, should be the default, largest view.
         return [expanded, compact]
     }
 
     /*
-     When this view controller is instantiated within the FilterDemoApp, its
-     audio unit is created independently, and passed to the view controller here.
+     When this view controller instantiates within the FilterDemoApp, the
+     system creates its audio unit independently and passes it to the view
+     controller here.
      */
     public var audioUnit: AUv3FilterDemo? {
         didSet {
             audioUnit?.viewController = self
             /*
-             We may be on a dispatch worker queue processing an XPC request at
+             The app may be on a dispatch worker queue processing an XPC request at
              this time, and quite possibly the main queue is busy creating the
              view. To be thread-safe, dispatch onto the main queue.
 
-             It's also possible that we are already on the main queue, so to
+             It's also possible that the app is already on the main queue, so to
              protect against deadlock in that case, dispatch asynchronously.
              */
             performOnMain {
@@ -69,7 +70,7 @@ public class AUv3FilterDemoViewController: AUViewController {
 
     #if os(macOS)
     public override init(nibName: NSNib.Name?, bundle: Bundle?) {
-        // Pass a reference to the owning framework bundle
+        // Pass a reference to the owning framework bundle.
         super.init(nibName: nibName, bundle: Bundle(for: type(of: self)))
     }
     #endif
@@ -101,7 +102,7 @@ public class AUv3FilterDemoViewController: AUViewController {
 
         guard audioUnit != nil else { return }
 
-        // Connect the user interface to the AU parameters, if needed.
+        // Connect the user interface to the audio unit parameters, if necessary.
         connectViewToAU()
     }
 
@@ -125,13 +126,13 @@ public class AUv3FilterDemoViewController: AUViewController {
             }
         }
 
-        // Observe value changes made to the cutoff and resonance parameters.
+        // Observe value changes to the cutoff and resonance parameters.
         parameterObserverToken =
             paramTree.token(byAddingParameterObserver: { [weak self] address, value in
                 guard let self = self else { return }
 
-                // This closure is being called by an arbitrary queue. Ensure
-                // all UI updates are dispatched back to the main thread.
+                // An arbitrary queue is calling this closure. Ensure
+                // all UI updates dispatch back to the main thread.
                 if [cutoff.address, resonance.address].contains(address) {
                     DispatchQueue.main.async {
                         self.updateUI()
@@ -139,19 +140,19 @@ public class AUv3FilterDemoViewController: AUViewController {
                 }
             })
 
-        // Indicate the view and AU are connected
+        // Indicate the view and the audio unit have a connection.
         needsConnection = false
 
-        // Sync UI with parameter state
+        // Sync the UI with the parameter state.
         updateUI()
     }
 
     private func updateUI() {
-        // Set latest values on graph view
+        // Set the latest values on the graph view.
         filterView.frequency = cutoffParameter.value
         filterView.resonance = resonanceParameter.value
 
-        // Set latest text field values
+        // Set the latest text field values.
         frequencyTextField.text = cutoffParameter.string(fromValue: nil)
         resonanceTextField.text = resonanceParameter.string(fromValue: nil)
 
@@ -176,12 +177,12 @@ public class AUv3FilterDemoViewController: AUViewController {
 
     public func toggleViewConfiguration() {
         // Let the audio unit call selectViewConfiguration instead of calling
-        // it directly to ensure validate the audio unit's behavior.
+        // it directly to ensure validation of the audio unit's behavior.
         audioUnit?.select(viewConfig == expanded ? compact : expanded)
     }
 
     func selectViewConfiguration(_ viewConfig: AUAudioUnitViewConfiguration) {
-        // If requested configuration is already active, do nothing
+        // If the requested configuration is already active, do nothing.
         guard self.viewConfig != viewConfig else { return }
 
         self.viewConfig = viewConfig
@@ -230,7 +231,7 @@ extension AUv3FilterDemoViewController: FilterViewDelegate {
         // Get an array of frequencies from the view.
         let frequencies = filterView.frequencyDataForDrawing()
 
-        // Get the corresponding magnitudes from the AU.
+        // Get the corresponding magnitudes from the audio unit.
         let magnitudes = audioUnit.magnitudes(forFrequencies: frequencies)
 
         filterView.setMagnitudes(magnitudes)

@@ -10,9 +10,8 @@ Utility classes to manage audio formats and buffers for an audio unit implementa
 #import <AVFoundation/AVFoundation.h>
 
 #pragma mark BufferedAudioBus Utility Class
-// Utility classes to manage audio formats and buffers for an audio unit implementation's input and output audio busses.
 
-// Reusable non-ObjC class, accessible from render thread.
+// A reusable non-ObjC class, accessible from the render thread.
 struct BufferedAudioBus {
     AUAudioUnitBus* bus = nullptr;
     AUAudioFrameCount maxFrames = 0;
@@ -54,8 +53,8 @@ struct BufferedAudioBus {
 /*
  BufferedOutputBus
  
- This class provides a prepareOutputBufferList method to copy the internal buffer pointers
- to the output buffer list in case the client passed in null buffer pointers.
+ This class provides a prepareOutputBufferList method to copy the internal buffer
+ pointers to the output buffer list in case the client passes in null buffer pointers.
  */
 struct BufferedOutputBus: BufferedAudioBus {
     void prepareOutputBufferList(AudioBufferList* outBufferList, AVAudioFrameCount frameCount, bool zeroFill) {
@@ -98,12 +97,12 @@ struct BufferedInputBus : BufferedAudioBus {
         
         /*
          Important:
-         The Audio Unit must supply valid buffers in (inputData->mBuffers[x].mData) and mDataByteSize.
-         mDataByteSize must be consistent with frameCount.
+         The audio unit must supply valid buffers in (inputData->mBuffers[x].mData) and
+         mDataByteSize. mDataByteSize must be consistent with frameCount.
 
-         The AURenderPullInputBlock may provide input in those specified buffers, or it may replace
-         the mData pointers with pointers to memory which it owns and guarantees will remain valid
-         until the next render cycle.
+         The AURenderPullInputBlock may provide input in those specified buffers, or it
+         may replace the mData pointers with pointers to memory that it owns so that
+         it remains valid until the next render cycle.
 
          See prepareInputBufferList()
          */
@@ -117,8 +116,8 @@ struct BufferedInputBus : BufferedAudioBus {
      prepareInputBufferList populates the mutableAudioBufferList with the data
      pointers from the originalAudioBufferList.
      
-     The upstream audio unit may overwrite these with its own pointers, so each
-     render cycle this function needs to be called to reset them.
+     The upstream audio unit may overwrite these with its own pointers, so call this
+     function for each render cycle to reset them.
      */
     void prepareInputBufferList(UInt32 frameCount) {
         UInt32 byteSize = std::min(frameCount, maxFrames) * sizeof(float);

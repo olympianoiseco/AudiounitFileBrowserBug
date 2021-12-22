@@ -17,19 +17,19 @@ public class SimplePlayEngine {
     // Synchronizes starting/stopping the engine and scheduling file segments.
     private let stateChangeQueue = DispatchQueue(label: "com.example.apple-samplecode.StateChangeQueue")
     
-    // Playback engine.
+    // The playback engine.
     private let engine = AVAudioEngine()
     
-    // Engine's player node.
+    // The engine's player node.
     private let player = AVAudioPlayerNode()
 
-    // File to play.
+    // The file to play.
     private var file: AVAudioFile?
     
-    // Whether we are playing.
+    // Indicates Whether the app is playing.
     private var isPlaying = false
     
-    // This block will be called every render cycle and will receive MIDI events
+    // The system calls this block every render and will receive MIDI events.
     private let midiOutBlock: AUMIDIOutputEventBlock = { sampleTime, cable, length, data in return noErr }
 
     private var componentType: OSType {
@@ -38,7 +38,7 @@ public class SimplePlayEngine {
     
     private var isEffect: Bool {
         // SimplePlayEngine only supports effects or instruments.
-        // If it's not an instrument, it's an effect
+        // If it's not an instrument, it's an effect.
         return !isInstrument
     }
 
@@ -105,7 +105,7 @@ public class SimplePlayEngine {
     }
     
     private func startPlayingInternal() {
-        // assumptions: we are protected by stateChangeQueue. we are not playing.
+        // Assumptions: stateChangeQueue is protecting the app. The app isn't playing.
         setSessionActive(true)
         
         if isEffect {
@@ -163,7 +163,7 @@ public class SimplePlayEngine {
 
     private func resetAudioLoop() {
         if isEffect {
-            // Connect player -> mixer.
+            // Connect the player to the mixer.
             guard let format = file?.processingFormat else { fatalError("No AVAudioFile defined (processing format unavailable).") }
             engine.connect(player, to: engine.mainMixerNode, format: format)
         }
@@ -175,29 +175,29 @@ public class SimplePlayEngine {
 
     public func connect(avAudioUnit: AVAudioUnit?, completion: @escaping (() -> Void) = {}) {
 
-        // If effect, ensure audio loop is reset (but only once per call to this method)
+        // If this is an effect, ensure you reset the audio loop (but only once per call to this method).
         var needsAudioLoopReset = true
 
         // Destroy the currently connected audio unit, if any.
         if let audioUnit = activeAVAudioUnit {
             if isEffect {
-                // Break the player -> effect connection.
+                // Break the player/effect connection.
                 engine.disconnectNodeInput(audioUnit)
             }
 
-            // Break the audio unit -> mixer connection
+            // Break the audio unit/mixer connection
             engine.disconnectNodeInput(engine.mainMixerNode)
 
             resetAudioLoop()
             needsAudioLoopReset = false
 
-            // We're done with the unit; release all references.
+            // The app is done with the unit; release all references.
             engine.detach(audioUnit)
         }
 
         activeAVAudioUnit = avAudioUnit
 
-        // Internal function to resume playing and call the completion handler.
+        // The internal function to resume playing and calling the completion handler.
         func rewiringComplete() {
             if isEffect && isPlaying {
                 player.play()
@@ -210,10 +210,10 @@ public class SimplePlayEngine {
 
         let hardwareFormat = engine.outputNode.outputFormat(forBus: 0)
 
-        // Connect the main mixer -> output node
+        // Connect the main mixer to the output node
         engine.connect(engine.mainMixerNode, to: engine.outputNode, format: hardwareFormat)
 
-        // Pause the player before re-wiring it. It is not simple to keep it playing across an insertion or deletion.
+        // Pause the player before rewiring it. It isn't simple to keep it playing across an insertion or deletion.
         if isEffect && isPlaying {
             player.pause()
         } else if isInstrument && isPlaying {
@@ -233,14 +233,14 @@ public class SimplePlayEngine {
             auAudioUnit.midiOutputEventBlock = midiOutBlock
         }
 
-        // Attach the AVAudioUnit the the graph.
+        // Attach the AVAudioUnit to the graph.
         engine.attach(avAudioUnit)
 
         if isEffect {
-            // Disconnect the player -> mixer.
+            // Disconnect the player from the mixer.
             engine.disconnectNodeInput(engine.mainMixerNode)
 
-            // Connect the player -> effect -> mixer.
+            // Connect the player, effect, and mixer.
             if let format = file?.processingFormat {
                 engine.connect(player, to: avAudioUnit, format: format)
                 engine.connect(avAudioUnit, to: engine.mainMixerNode, format: format)
@@ -254,7 +254,7 @@ public class SimplePlayEngine {
 
     // MARK: InstrumentPlayer
 
-    /// Simple MIDI note generator that plays a two-octave scale.
+    /// A simple MIDI note generator that plays a two-octave scale.
     private class InstrumentPlayer {
 
         private var isPlaying = false
@@ -322,7 +322,7 @@ public class SimplePlayEngine {
                 self.synced(self.isDone) {
 
                     while self.isPlaying {
-                        // lengthen the releaseTime by 5% each time up to 10 seconds.
+                        // Lengthen the releaseTime by 5% each time up to 10 seconds.
                         if releaseTime < 10.0 {
                             releaseTime = min(releaseTime * 1.05, 10.0)
                         }
@@ -334,17 +334,17 @@ public class SimplePlayEngine {
 
                         usleep(useconds_t(0.2 * 1e6))
 
-                        cbytes[2] = 0    // note off
+                        cbytes[2] = 0 // Turn the note off.
                         self.noteBlock(AUEventSampleTimeImmediate, 0, 3, cbytes)
 
-                        // Reset the note and step after a 2-octave run. (12 semi-tones * 2)
+                        // Reset the note and step after a two-octave run. (12 semi-tones * 2)
                         if note >= 24 {
                             note = 0
                             step = 0
                             continue
                         }
 
-                        // Increment the note interval to the next interval step in the scale
+                        // Increment the note interval to the next interval step in the scale.
                         note += steps[step]
 
                         step += 1
@@ -352,8 +352,7 @@ public class SimplePlayEngine {
                         if step >= steps.count {
                             step = 0
                         }
-
-                    } // while isPlaying
+                    }
 
                     cbytes[0] = 0xB0
                     cbytes[1] = 123

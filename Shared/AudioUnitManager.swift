@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Non-UI controller object used to manage the interaction with the AUv3FilterDemo audio unit.
+The non-UI controller object used to manage the interaction with the AUv3FilterDemo audio unit.
 */
 
 import Foundation
@@ -20,13 +20,13 @@ public struct Preset {
     public var name: String { return audioUnitPreset.name }
 }
 
-// Delegate protocol to be adopted to be notified of parameter value changes.
+// The protocol you adopt to observe parameter value changes.
 public protocol AUManagerDelegate: AnyObject {
     func cutoffValueDidChange(_ value: Float)
     func resonanceValueDidChange(_ value: Float)
 }
 
-// Controller object used to manage the interaction with the audio unit and its user interface.
+// The controller object for managing the interaction with the audio unit and its user interface.
 public class AudioUnitManager {
 
     /// The user-selected audio unit.
@@ -74,7 +74,7 @@ public class AudioUnitManager {
         }
     }
 
-    /// The playback engine used to play audio.
+    /// The playback engine for playing audio.
     private let playEngine = SimplePlayEngine()
 
     // The audio unit's filter cutoff frequency parameter object.
@@ -83,13 +83,13 @@ public class AudioUnitManager {
     // The audio unit's filter resonance parameter object.
     private var resonanceParameter: AUParameter!
 
-    // A token for our registration to observe parameter value changes.
+    // A token for registering to observe parameter value changes.
     private var parameterObserverToken: AUParameterObserverToken!
 
-    // The AudioComponentDescription matching the AUv3FilterExtension Info.plist
+    // The AudioComponentDescription that matches the AUv3FilterExtension Info.plist.
     private var componentDescription: AudioComponentDescription = {
 
-        // Ensure that AudioUnit type, subtype, and manufacturer match the extension's Info.plist values
+        // Ensure that AudioUnit type, subtype, and manufacturer match the extension's Info.plist values.
         var componentDescription = AudioComponentDescription()
         componentDescription.componentType = kAudioUnitType_Effect
         componentDescription.componentSubType = 0x666c7472 /*'fltr'*/
@@ -107,10 +107,9 @@ public class AudioUnitManager {
         viewController = loadViewController()
 
         /*
-         Register our `AUAudioUnit` subclass, `AUv3FilterDemo`, to make it able
-         to be instantiated via its component description.
+         Register the `AUAudioUnit` subclass, and `AUv3FilterDemo`, so it can instantiate using its component description.
 
-         Note that this registration is local to this process.
+         This registration is local to this process.
          */
         AUAudioUnit.registerSubclass(AUv3FilterDemo.self,
                                      as: componentDescription,
@@ -129,7 +128,7 @@ public class AudioUnitManager {
 
     // Loads the audio unit's view controller from the extension bundle.
     private func loadViewController() -> AUv3FilterDemoViewController {
-        // Locate the app extension's bundle in the main app's PlugIns directory
+        // Locate the app extension's bundle in the main app's PlugIns directory.
         guard let url = Bundle.main.builtInPlugInsURL?.appendingPathComponent("AUv3FilterExtension.appex"),
             let appexBundle = Bundle(url: url) else {
                 fatalError("Could not find app extension bundle URL.")
@@ -147,8 +146,8 @@ public class AudioUnitManager {
     }
 
     /**
-     Called after instantiating our audio unit, to find the AU's parameters and
-     connect them to our controls.
+     Call this after instantiating the audio unit, to find the AU's parameters and
+     connect them to the controls.
      */
     private func connectParametersToControls() {
 
@@ -158,7 +157,7 @@ public class AudioUnitManager {
 
         viewController.audioUnit = audioUnit
 
-        // Find our parameters by their identifiers.
+        // Find the parameters by their identifiers.
         guard let parameterTree = audioUnit.parameterTree else {
             fatalError("AUv3FilterDemo does not define any parameters.")
         }
@@ -169,8 +168,8 @@ public class AudioUnitManager {
         parameterObserverToken = parameterTree.token(byAddingParameterObserver: { [weak self] address, _ in
             guard let self = self else { return }
             /*
-             This is called when one of the parameter values changes.
-             We can only update UI from the main queue.
+             The system calls this when one of the parameter values changes.
+             You can only update the UI from the main queue.
              */
             DispatchQueue.main.async {
                 if address == self.cutoffParameter.address {

@@ -2,14 +2,14 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Main AU interface that enables user to visually configure the frequency and resonance parameters.
+The main audio unit interface that enables the user to visually configure the frequency and resonance parameters.
 */
 
 public let defaultMinHertz: Float = 12.0
 public let defaultMaxHertz: Float = 20_000.0
 
-/// Delegate protocol used to communicate changes to frequency and resonance.
-protocol FilterViewDelegate: class {
+/// The delegate protocol for communicating changes to frequency and resonance.
+protocol FilterViewDelegate: AnyObject {
     func filterViewTouchBegan(_ filterView: FilterView)
     func filterView(_ filterView: FilterView, didChangeResonance resonance: Float)
     func filterView(_ filterView: FilterView, didChangeFrequency frequency: Float)
@@ -119,27 +119,29 @@ class FilterView: View {
 
             editPoint.x = floor(locationForFrequencyValue(frequency))
 
-            // Do not notify delegate that the frequency changed; that would create a feedback loop.
+            // Don't notify the delegate when the frequency changes
+            // because that creates a feedback loop.
         }
     }
 
     // The narrow band of the cutoff frequency to boost or attenuate.
     var resonance: Float = 0.0 {
         didSet {
-            // Clamp the resonance to min/max values.
+            // Clamp the resonance to minimum and maximum values.
             let gain = Float(defaultGain)
             resonance = resonance.clamp(to: -gain...gain)
 
-            // Set the edit point y position
+            // Set the edit point y position.
             editPoint.y = floor(locationForDBValue(resonance))
 
-            // Do not notify delegate that the resonance changed; that would create a feedback loop.
+            // Don't notify the delegate when the resonance changes
+            // because that creates a feedback loop.
         }
     }
 
     /*
-     The frequencies are plotted on a logorithmic scale. This method returns a
-     frequency value based on a fractional grid position.
+     The frequencies plot using a logorithmic scale. This method returns a
+     frequency value from a fractional grid position.
      */
     func valueAtGridIndex(_ index: Float) -> Float {
         return defaultMinHertz * powf(Float(logBase), index)
@@ -150,8 +152,9 @@ class FilterView: View {
     }
 
     /*
-     Prepares an array of frequencies that the AU needs to supply magnitudes for.
-     This array is cached until the view size changes (on device rotation, etc).
+     Prepares an array of frequencies that the audio unit needs to supply magnitudes
+     for. This array caches until the view size changes (on device rotation, and so
+     forth).
      */
     func frequencyDataForDrawing() -> [Double] {
         guard frequencies == nil else { return frequencies! }
@@ -187,8 +190,8 @@ class FilterView: View {
     }
 
     /*
-     Generates a bezier path from the frequency response curve data provided by
-     the view controller. Also responsible for keeping the control point in sync.
+     Generates a Bezier path from the frequency response curve data that the view
+     controller provides. It also responsible for keeping the control point in sync.
      */
     func setMagnitudes(_ magnitudeData: [Double]) {
 
@@ -246,7 +249,7 @@ class FilterView: View {
         updateControls(refreshColor: true)
     }
 
-    // Calculates the pixel position on the x axis of the graph corresponding to the frequency value.
+    // Calculates the pixel position on the x-axis of the graph corresponding to the frequency value.
     func locationForFrequencyValue(_ value: Float) -> CGFloat {
         let pixelIncrement = graphLayer.frame.width / CGFloat(gridLineCount)
         let number = value / defaultMinHertz
@@ -254,20 +257,20 @@ class FilterView: View {
         return floor(CGFloat(location) + graphLayer.frame.origin.x) + 0.5
     }
 
-    // Calculates the frequency value corresponding to a position value on the x axis of the graph.
+    // Calculates the frequency value corresponding to a position value on the x-axis of the graph.
     func frequencyValueForLocation(_ location: CGFloat) -> Float {
         let pixelIncrement = graphLayer.frame.width / CGFloat(gridLineCount)
         let index = (location - graphLayer.frame.origin.x) / CGFloat(pixelIncrement)
         return valueAtGridIndex(Float(index))
     }
 
-    // Calculates the dB value corresponding to a position value on the y axis of the graph.
+    // Calculates the dB value corresponding to a position value on the y-axis of the graph.
     func dbValueForLocation(_ location: CGFloat) -> Float {
         let step = graphLayer.frame.height / CGFloat(defaultGain * 2)
         return Float(-(((location - bottomMargin) / step) - CGFloat(defaultGain)))
     }
 
-    // Calculates the pixel position on the y axis of the graph corresponding to the dB value.
+    // Calculates the pixel position on the y-axis of the graph corresponding to the dB value.
     func locationForDBValue(_ value: Float) -> CGFloat {
         let step = graphLayer.frame.height / CGFloat(defaultGain * 2)
         let location = (CGFloat(value) + CGFloat(defaultGain)) * step
@@ -337,14 +340,14 @@ class FilterView: View {
         createDBLabelsAndLines()
         createFrequencyLabelsAndLines()
 
-        // Add curve layer before creating control point so layers are
-        // stacked as needed
+        // Add the curve layer before creating the control point so layers are
+        // stacked as necessary
         graphLayer.addSublayer(curveLayer)
 
         createControlPoint()
 
         #if os(macOS)
-        // Manually perform initial layout pass on macOS
+        // Manually perform the initial layout pass in macOS.
         layoutSublayers(of: rootLayer)
         #endif
     }
@@ -353,7 +356,7 @@ class FilterView: View {
         #if os(iOS)
         return Color(white: 0.1, alpha: 1.0)
         #elseif os(macOS)
-        return Color.labelColor // Use Appearance-aware label color
+        return Color.labelColor // Use an appearance-aware label color.
         #endif
     }
     
@@ -366,22 +369,22 @@ class FilterView: View {
 
     /*
      Creates the decibel label layers for the vertical axis of the graph and adds
-     them as sublayers of the graph layer. Also creates the db Lines.
+     them as sublayers of the graph layer. Also creates the dB lines.
      */
     func createDBLabelsAndLines() {
         let range = -numDBLines...numDBLines
         for index in range where range.contains(index) {
-            // Calculate value
+            // Calculate the value.
             let value = index * (defaultGain / numDBLines)
 
-            // Create Label
+            // Create the label.
             let labelLayer = makeLabelLayer(alignment: .right)
             labelLayer.string = "\(value) db"
 
             dbLabels.append(labelLayer)
             containerLayer.addSublayer(labelLayer)
 
-            // Create Line Labels
+            // Create the line labels.
             let lineLayer = ColorLayer(white: index == 0 ? 0.65 : 0.8)
             dbLines.append(lineLayer)
             graphLayer.addSublayer(lineLayer)
@@ -407,7 +410,7 @@ class FilterView: View {
 
     /*
      Creates the frequency label layers for the horizontal axis of the graph and
-     adds them as sublayers of the graph layer. Also creates the frequency line
+     adds them as sublayers of the graph layer. It also creates the frequency line
      layers.
      */
     func createFrequencyLabelsAndLines() {
@@ -462,13 +465,12 @@ class FilterView: View {
     }
 
     /*
-     Creates the control point layers comprising of a horizontal and vertical
+     Creates the control point layers comprising a horizontal and vertical
      line (crosshairs) and a circle at the intersection.
      */
     func createControlPoint() {
 
         guard let color = touchDown ? tintColor : Color.darkGray else {
-            // This should never happen.
             fatalError("Unable to get color value.")
         }
 
@@ -493,8 +495,8 @@ class FilterView: View {
 
     /*
      Updates the position of the control layers and the color if the refreshColor
-     parameter is true. The controls are drawn in a blue color if the user's finger
-     is touching the graph and still down.
+     parameter is true. The controls draw in a blue color if the user's finger
+     is touching the graph and is still down.
      */
     func updateControls(refreshColor: Bool) {
         let color = touchDown ? tintColor.darker.cgColor: Color.darkGray.cgColor
@@ -540,8 +542,8 @@ class FilterView: View {
     }
 
     func updateDBLayers() {
+        
         // Update the positions of the dBLine and label layers.
-
         let range = -numDBLines...numDBLines
         for index in range where range.contains(index) {
             let value = Float(index * (defaultGain / numDBLines))
@@ -589,12 +591,12 @@ class FilterView: View {
 
     /*
      This function positions all of the layers of the view starting with
-     the horizontal dbLines and lables on the y axis. Next, it positions
-     the vertical frequency lines and labels on the x axis. Finally, it
+     the horizontal dbLines and labels on the y-axis. Next, it positions
+     the vertical frequency lines and labels on the x-axis. Finally, it
      positions the controls and the curve layer.
 
-     This method is also called when the orientation of the device changes
-     and the view needs to re-layout for the new view size.
+     The system also calls this method when the orientation of the device changes
+     and the view needs to relayout for the new view size.
      */
     #if os(iOS)
     override func layoutSublayers(of layer: CALayer) {
@@ -636,7 +638,7 @@ class FilterView: View {
         frequencies = nil
 
         /*
-         Notify view controller that our bounds has changed -- meaning that new
+         Notify the view controller when the bounds change -- meaning that new
          frequency data is available.
          */
         delegate?.filterViewDataDidChange(self)
@@ -654,21 +656,21 @@ class FilterView: View {
             frequency = lastFrequency
             resonance = lastResonance
 
-            // Notify delegate that frequency changed.
+            // Notify the delegate when the frequency changes.
             delegate?.filterView(self, didChangeFrequency: frequency, andResonance: resonance)
         }
 
         if lastFrequency != frequency {
             frequency = lastFrequency
 
-            // Notify delegate that frequency changed.
+            // Notify the delegate when the frequency changes.
             delegate?.filterView(self, didChangeFrequency: frequency)
         }
 
         if lastResonance != resonance {
             resonance = lastResonance
 
-            // Notify delegate that resonance changed.
+            // Notify the delegate when the frequency changes.
             delegate?.filterView(self, didChangeResonance: resonance)
         }
     }

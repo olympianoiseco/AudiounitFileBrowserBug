@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-Utility code to manage scheduled parameters in an audio unit implementation.
+The utility code to manage scheduled parameters in an audio unit implementation.
 */
 
 #import "DSPKernel.hpp"
@@ -35,10 +35,10 @@ void DSPKernel::performAllSimultaneousEvents(AUEventSampleTime now, AURenderEven
             midiOut(now, 0, event->MIDI.length, event->MIDI.data);
         }
         
-        // Go to next event.
+        // Go to the next event.
         event = event->head.next;
 
-        // While event is not null and is simultaneous (or late).
+        // Proceed while the event isn't null and is simultaneous (or late).
     } while (event && event->head.eventSampleTime <= now);
 }
 
@@ -53,7 +53,7 @@ void DSPKernel::processWithEvents(AudioTimeStamp const *timestamp, AUAudioFrameC
     AURenderEvent const *event = events;
 
     while (framesRemaining > 0) {
-        // If there are no more events, we can process the entire remaining segment and exit.
+        // If there are no more events, process the entire remaining segment and exit.
         if (event == nullptr) {
             AUAudioFrameCount const bufferOffset = frameCount - framesRemaining;
             process(framesRemaining, bufferOffset);

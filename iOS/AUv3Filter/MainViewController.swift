@@ -57,12 +57,12 @@ class MainViewController: UIViewController {
         audioUnitManager.toggleView()
     }
 
-    /// Cutoff frequency value changed handler
+    /// The cutoff frequency value changes the handler.
     @IBAction func cutoffSliderValueChanged(_ sender: UISlider) {
         audioUnitManager.cutoffValue = frequencyValueForSliderLocation(sender.value)
     }
 
-    /// Resonance value changed handler
+    /// The resonance value changes the handler.
     @IBAction func resonanceSliderValueChanged(_ sender: UISlider) {
         audioUnitManager.resonanceValue = sender.value
     }
