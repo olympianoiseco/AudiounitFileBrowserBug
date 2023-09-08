@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The non-UI controller object used to manage the interaction with the AUv3FilterDemo audio unit.
@@ -92,11 +92,10 @@ public class AudioUnitManager {
         // Ensure that AudioUnit type, subtype, and manufacturer match the extension's Info.plist values.
         var componentDescription = AudioComponentDescription()
         componentDescription.componentType = kAudioUnitType_Effect
-        componentDescription.componentSubType = 0x666c7472 /*'fltr'*/
-        componentDescription.componentManufacturer = 0x44656d6f /*'Demo'*/
-        componentDescription.componentFlags = 0
+		componentDescription.componentSubType = "fltr".fourCharCode! /*'fltr'*/
+        componentDescription.componentManufacturer = "Demo".fourCharCode! /*'Demo'*/
+        componentDescription.componentFlags = AudioComponentFlags.sandboxSafe.rawValue
         componentDescription.componentFlagsMask = 0
-
         return componentDescription
     }()
 
@@ -105,13 +104,12 @@ public class AudioUnitManager {
     public init() {
 
         viewController = loadViewController()
-
         /*
          Register the `AUAudioUnit` subclass, and `AUv3FilterDemo`, so it can instantiate using its component description.
 
          This registration is local to this process.
          */
-        AUAudioUnit.registerSubclass(AUv3FilterDemo.self,
+		AUAudioUnit.registerSubclass(AUv3FilterDemo.self,
                                      as: componentDescription,
                                      name: componentName,
                                      version: UInt32.max)

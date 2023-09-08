@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 An AUAudioUnit subclass that implements a low-pass filter with resonance.
@@ -18,39 +18,16 @@ fileprivate extension AUAudioUnitPreset {
     }
 }
 
-public class AUv3FilterDemo: AUAudioUnit {
+public class AUv3FilterDemo: AUv3Base {
 
-    private let parameters: AUv3FilterDemoParameters
-    private let kernelAdapter: FilterDSPKernelAdapter
+	private var parameters: AUv3FilterDemoParameters?
 
-    lazy private var inputBusArray: AUAudioUnitBusArray = {
-        AUAudioUnitBusArray(audioUnit: self,
-                            busType: .input,
-                            busses: [kernelAdapter.inputBus])
-    }()
-
-    lazy private var outputBusArray: AUAudioUnitBusArray = {
-        AUAudioUnitBusArray(audioUnit: self,
-                            busType: .output,
-                            busses: [kernelAdapter.outputBus])
-    }()
-
-    // The owning view controller.
+    // The owning view controller
     weak var viewController: AUv3FilterDemoViewController?
 
-    /// The filter's input busses.
-    public override var inputBusses: AUAudioUnitBusArray {
-        return inputBusArray
-    }
-
-    /// The filter's output busses.
-    public override var outputBusses: AUAudioUnitBusArray {
-        return outputBusArray
-    }
-    
     /// The tree of parameters that this audio unit provides.
     public override var parameterTree: AUParameterTree? {
-        get { return parameters.parameterTree }
+		get { return parameters?.parameterTree }
         set { /* The sample doesn't allow modification of this property. */ }
     }
 
@@ -83,7 +60,7 @@ public class AUv3FilterDemo: AUAudioUnit {
             // Factory presets need to always have a number >= 0.
             if preset.number >= 0 {
                 let values = factoryPresetValues[preset.number]
-                parameters.setParameterValues(cutoff: values.cutoff, resonance: values.resonance)
+                parameters!.setParameterValues(cutoff: values.cutoff, resonance: values.resonance)
                 _currentPreset = preset
             }
             // User presets are always negative.
@@ -108,14 +85,11 @@ public class AUv3FilterDemo: AUAudioUnit {
     public override init(componentDescription: AudioComponentDescription,
                          options: AudioComponentInstantiationOptions = []) throws {
 
-        // Create the adapter to communicate to the underlying C++ DSP code.
-        kernelAdapter = FilterDSPKernelAdapter()
-        
-        // Create the parameters object to control the cutoff frequency and resonance.
-        parameters = AUv3FilterDemoParameters(kernelAdapter: kernelAdapter)
-
         // Create the super class.
         try super.init(componentDescription: componentDescription, options: options)
+
+		// Create the parameters object to control the cutoff frequency and resonance.
+		parameters = AUv3FilterDemoParameters(kernelAdapter: kernelAdapter)
 
         // Log the component description values.
         log(componentDescription)
@@ -167,10 +141,6 @@ public class AUv3FilterDemo: AUAudioUnit {
     public override func deallocateRenderResources() {
         super.deallocateRenderResources()
         kernelAdapter.deallocateRenderResources()
-    }
-
-    public override var internalRenderBlock: AUInternalRenderBlock {
-        return kernelAdapter.internalRenderBlock()
     }
 
     // A Boolean value that indicates whether the audio unit can process the input

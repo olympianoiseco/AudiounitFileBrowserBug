@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The view controller for the AUv3FilterDemo audio unit that manages the interactions between a FilterView and the audio unit's parameters.

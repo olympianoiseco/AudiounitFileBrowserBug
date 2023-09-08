@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The utility class to manage DSP parameters that can change value smoothly (be ramped) while rendering without introducing clicks or other distortion into the signal.

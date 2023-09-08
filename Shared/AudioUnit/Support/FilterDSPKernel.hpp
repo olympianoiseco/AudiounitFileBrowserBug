@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 A DSPKernel subclass that implements the real-time signal processing portion of the AUv3FilterDemo audio unit.

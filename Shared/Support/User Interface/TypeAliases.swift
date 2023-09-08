@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The type alias mapping to normalize AppKit and UIKit interfaces to support cross-platform code reuse.

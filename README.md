@@ -220,7 +220,7 @@ public override var currentPreset: AUAudioUnitPreset? {
         // Factory presets need to always have a number >= 0.
         if preset.number >= 0 {
             let values = factoryPresetValues[preset.number]
-            parameters.setParameterValues(cutoff: values.cutoff, resonance: values.resonance)
+            parameters!.setParameterValues(cutoff: values.cutoff, resonance: values.resonance)
             _currentPreset = preset
         }
         // User presets are always negative.
@@ -292,23 +292,23 @@ Finally, in the extension’s `Info.plist` file, set the Audio Unit’s factory 
 
 
 
-[1]:	https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG
-[2]:	https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/incorporating_audio_effects_and_instruments
-[3]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit
-[4]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounitfactory
-[5]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounitfactory/1440321-createaudiounit
-[6]:	https://developer.apple.com/documentation/audiotoolbox/auparametertree
-[7]:	https://developer.apple.com/documentation/audiotoolbox/auparameternode/1439658-implementorvalueobserver
-[8]:	https://developer.apple.com/documentation/audiotoolbox/auparameternode/1439942-implementorvalueprovider
-[9]:	https://developer.apple.com/documentation/audiotoolbox/auparameternode/1440045-implementorstringfromvaluecallba
-[10]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152393-supportsuserpresets
-[11]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152394-userpresets
-[12]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152392-saveuserpreset
-[13]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152389-deleteuserpreset
-[14]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152391-presetstatefor
-[15]:	https://developer.apple.com/documentation/audiotoolbox/auaudiounit/1387630-fullstatefordocument
-[16]:	https://developer.apple.com/documentation/audiotoolbox/audiocomponentinstantiationoptions/1410490-loadinprocess
-[17]:	https://developer.apple.com/documentation/appkit/nsviewcontroller/1434481-init
-[18]:	https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/incorporating_audio_effects_and_instruments
+[1]:    https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG
+[2]:    https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/incorporating_audio_effects_and_instruments
+[3]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit
+[4]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounitfactory
+[5]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounitfactory/1440321-createaudiounit
+[6]:    https://developer.apple.com/documentation/audiotoolbox/auparametertree
+[7]:    https://developer.apple.com/documentation/audiotoolbox/auparameternode/1439658-implementorvalueobserver
+[8]:    https://developer.apple.com/documentation/audiotoolbox/auparameternode/1439942-implementorvalueprovider
+[9]:    https://developer.apple.com/documentation/audiotoolbox/auparameternode/1440045-implementorstringfromvaluecallba
+[10]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152393-supportsuserpresets
+[11]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152394-userpresets
+[12]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152392-saveuserpreset
+[13]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152389-deleteuserpreset
+[14]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/3152391-presetstatefor
+[15]:    https://developer.apple.com/documentation/audiotoolbox/auaudiounit/1387630-fullstatefordocument
+[16]:    https://developer.apple.com/documentation/audiotoolbox/audiocomponentinstantiationoptions/1410490-loadinprocess
+[17]:    https://developer.apple.com/documentation/appkit/nsviewcontroller/1434481-init
+[18]:    https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/incorporating_audio_effects_and_instruments
 
-[image-1]:	Documentation/graph.png "plug-in User Interface"
+[image-1]:    Documentation/graph.png "plug-in User Interface"

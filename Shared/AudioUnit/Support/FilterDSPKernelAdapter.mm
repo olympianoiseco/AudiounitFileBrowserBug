@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The adapter object that provides a Swift-accessible interface to the filter's underlying DSP code.
@@ -107,7 +107,7 @@ The adapter object that provides a Swift-accessible interface to the filter's un
                               NSInteger                   outputBusNumber,
                               AudioBufferList            *outputData,
                               const AURenderEvent        *realtimeEventListHead,
-                              AURenderPullInputBlock      pullInputBlock) {
+                              AURenderPullInputBlock __unsafe_unretained pullInputBlock) {
 
         AudioUnitRenderActionFlags pullFlags = 0;
 

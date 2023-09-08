@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 Utility classes to manage audio formats and buffers for an audio unit implementation's input and output audio busses.
@@ -90,7 +90,7 @@ struct BufferedInputBus : BufferedAudioBus {
                                 AudioTimeStamp const* timestamp,
                                 AVAudioFrameCount frameCount,
                                 NSInteger inputBusNumber,
-                                AURenderPullInputBlock pullInputBlock) {
+                                AURenderPullInputBlock __unsafe_unretained pullInputBlock) {
         if (pullInputBlock == nullptr) {
             return kAudioUnitErr_NoConnection;
         }
