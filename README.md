@@ -1,14 +1,57 @@
-# Creating Custom Audio Effects
-Add custom audio-effect processing to apps like Logic Pro X and GarageBand by creating Audio Unit (AU) plug-ins.
+# Audio Unit File Browser Bug Demo
 
-## Overview
-This sample app shows you how to create a custom audio effect plug-in using the latest Audio Unit standard (AUv3). The AUv3 standard builds on the [App Extensions][1] model, which means you deliver your plug-in as an extension that’s contained in an app distributed through the App Store or your own store.
+This repository demonstrates a bug with UIDocumentBrowserViewController when used inside an Audio Unit extension.
+
+## Bug Description
+
+When attempting to present a UIDocumentBrowserViewController from within an AUv3 extension's view controller, the document browser may not behave correctly or may crash the host application. This appears to be related to how file access permissions and view controller presentation work within the sandboxed environment of an Audio Unit extension.
+
+## How to Reproduce
+
+1. **Build and Install the Extension**: 
+   - Open `AUv3Filter.xcodeproj` in Xcode
+   - Select the "AUv3Filter iOS" scheme (not the extension scheme)
+   - Build and run on a physical iOS device (required for Audio Unit extensions)
+
+2. **Test in a Host App**:
+   - Open GarageBand, AUM, or another Audio Unit host app
+   - Load the "AUv3FilterDemo" audio unit
+   - Tap the "Show Folder Picker" button in the Audio Unit's interface
+
+3. **Expected vs Actual Behavior**:
+   - **Expected**: UIDocumentBrowserViewController presents and allows folder selection
+   - **Actual**: May crash, fail to present, or not properly handle file access permissions
+
+## Demo App Overview
+
+This is based on Apple's sample "Creating Custom Audio Effects" project with added UIDocumentBrowserViewController functionality. The sample app shows you how to create a custom audio effect plug-in using the latest Audio Unit standard (AUv3). The AUv3 standard builds on the [App Extensions][1] model, which means you deliver your plug-in as an extension that's contained in an app distributed through the App Store or your own store.
 
 The sample Audio Unit is a low-pass filter that allows frequencies at or below the cutoff frequency to pass through to the output. It attenuates frequencies above this point. It also lets you change the filter’s resonance, which boosts or attenuates a narrow band of frequencies around the cutoff point. You set these values by moving the draggable point around the plug-in’s user interface, as shown in the figure below.
 
 ![plug-in User Interface][image-1]
 
-The project has targets for both iOS and macOS. Each platform’s main app target has two supporting targets: `AUv3FilterExtension`, which contains the plug-in packaged as an Audio Unit extension, and `AUv3FilterFramework`, which bundles the plug-in’s code and resources.
+## Modified Components
+
+The following components have been modified to demonstrate the file browser bug:
+
+### AUv3FilterDemoViewController.swift
+- Added `folderBrowserButton` outlet
+- Added `showFolderBrowser(_:)` action method that presents UIDocumentBrowserViewController
+- Added UIDocumentBrowserViewControllerDelegate extension to handle folder selection
+- All file browser code is conditionally compiled for iOS only (`#if os(iOS)`)
+
+### MainInterface.storyboard
+- Added "Show Folder Picker" button connected to the new action method
+
+## Project Structure
+
+The project has targets for both iOS and macOS. Each platform's main app target has two supporting targets: `AUv3FilterExtension`, which contains the plug-in packaged as an Audio Unit extension, and `AUv3FilterFramework`, which bundles the plug-in's code and resources.
+
+## Testing Notes
+
+- This issue only affects iOS (UIDocumentBrowserViewController is iOS-only)
+- Testing must be done on a physical device (Audio Unit extensions don't work in simulator)
+- The bug may manifest differently depending on the host app (GarageBand vs AUM vs others)
 
 - Note: See [Incorporating Audio Effects and Instruments][2] for details on how you can use this Audio Unit extension in a host app.
 
