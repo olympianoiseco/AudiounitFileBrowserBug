@@ -22,6 +22,7 @@ public class AUv3FilterDemoViewController: AUViewController {
 
     @IBOutlet weak var frequencyTextField: TextField!
     @IBOutlet weak var resonanceTextField: TextField!
+    @IBOutlet weak var folderBrowserButton: Button!
     
     var observer: NSKeyValueObservation?
 
@@ -166,6 +167,16 @@ public class AUv3FilterDemoViewController: AUViewController {
     @IBAction func resonanceUpdated(_ sender: TextField) {
         update(parameter: resonanceParameter, with: sender)
     }
+    
+    @IBAction func showFolderBrowser(_ sender: Button) {
+        #if os(iOS)
+        let documentBrowser = UIDocumentBrowserViewController(forOpening: [.folder])
+        documentBrowser.delegate = self
+        documentBrowser.allowsDocumentCreation = false
+        documentBrowser.allowsPickingMultipleItems = false
+        present(documentBrowser, animated: true)
+        #endif
+    }
 
     func update(parameter: AUParameter, with textField: TextField) {
         guard let value = (textField.text as NSString?)?.floatValue else { return }
@@ -303,6 +314,20 @@ extension AUv3FilterDemoViewController: UITextFieldDelegate {
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         view.endEditing(true)
         return false
+    }
+}
+
+extension AUv3FilterDemoViewController: UIDocumentBrowserViewControllerDelegate {
+    public func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
+        guard let selectedURL = documentURLs.first else { return }
+        
+        controller.dismiss(animated: true) {
+            print("Selected folder: \(selectedURL.path)")
+        }
+    }
+    
+    public func documentBrowser(_ controller: UIDocumentBrowserViewController, didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void) {
+        importHandler(nil, .none)
     }
 }
 #endif
