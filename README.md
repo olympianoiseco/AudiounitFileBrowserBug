@@ -6,6 +6,8 @@ This repository demonstrates a bug with UIDocumentBrowserViewController when use
 
 When attempting to present a UIDocumentBrowserViewController from within an AUv3 extension's view controller, the document browser may not behave correctly. 
 
+Specifically, in Logic Pro, the UIDocumentBrowserViewController is unable to receive touch events when a keyboard is attached to the iPad. 
+
 ## How to Reproduce
 
 1. **Build and Install the Extension**: 
